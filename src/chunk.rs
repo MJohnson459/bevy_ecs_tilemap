@@ -15,6 +15,7 @@ use std::sync::Mutex;
 
 #[derive(Bundle)]
 pub(crate) struct ChunkBundle {
+    pub name: Name,
     pub chunk: Chunk,
     pub mesh: Handle<Mesh>,
     pub transform: Transform,
@@ -27,6 +28,7 @@ pub(crate) struct ChunkBundle {
 impl Default for ChunkBundle {
     fn default() -> Self {
         Self {
+            name: Name::new("Chunk"),
             chunk: Chunk::default(),
             mesh: Handle::default(),
             transform: Transform::default(),

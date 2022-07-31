@@ -117,6 +117,7 @@ where
                 let tilemap_data = TilemapUniformData::from(&chunk);
 
                 commands.entity(chunk_entity).insert_bundle(ChunkBundle {
+                    name: Name::new(format!("Chunk {}x{}", x, y)),
                     chunk,
                     mesh: mesh_handle,
                     transform,
@@ -155,6 +156,7 @@ where
         commands.spawn_batch(bundles);
 
         let layer_bundle = LayerBundle {
+            name: Name::new(format!("Layer {}", layer_id)),
             layer,
             transform: Transform::from_xyz(0.0, 0.0, settings.layer_id as f32),
             ..LayerBundle::default()
@@ -362,6 +364,7 @@ where
                         *tile_bundle_pos = tile_pos;
                         commands
                             .entity(tile_entity.unwrap())
+                            .insert(Parent(chunk_entity))
                             .insert_bundle(tile_bundle);
 
                         return tile_entity;
@@ -385,6 +388,7 @@ where
                 let tilemap_data = TilemapUniformData::from(&chunk);
 
                 commands.entity(chunk_entity).insert_bundle(ChunkBundle {
+                    name: Name::new(format!("Chunk {}x{}", x, y)),
                     chunk,
                     mesh: mesh_handle,
                     transform,
@@ -395,6 +399,7 @@ where
         }
 
         LayerBundle {
+            name: Name::new(format!("Layer {}", self.settings.layer_id)),
             layer,
             transform: Transform::from_xyz(0.0, 0.0, self.settings.layer_id as f32),
             ..LayerBundle::default()

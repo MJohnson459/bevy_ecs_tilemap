@@ -10,14 +10,26 @@ use bevy::{prelude::*, render::render_resource::FilterMode};
 use std::hash::Hash;
 
 /// A bevy bundle which contains: Map, Transform, and GlobalTransform components.
-#[derive(Bundle, Default)]
+#[derive(Bundle)]
 pub struct LayerBundle {
+    pub name: Name,
     /// The map component for the tilemap.
     pub layer: Layer,
     /// The local transform of the tilemap entity.
     pub transform: Transform,
     /// The global transform of the tilemap entity.
     pub global_transform: GlobalTransform,
+}
+
+impl Default for LayerBundle {
+    fn default() -> Self {
+        Self {
+            name: Name::new("Layer"),
+            layer: Layer::default(),
+            transform: Transform::default(),
+            global_transform: GlobalTransform::default(),
+        }
+    }
 }
 
 /// Various settings used to define the tilemap.
