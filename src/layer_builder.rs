@@ -131,22 +131,23 @@ where
         let chunk_size = settings.chunk_size;
         let layer_id = settings.layer_id;
         let map_id = settings.map_id;
-        let bundles: Vec<T> = (0..size_x)
+        let bundles: Vec<LayerBuilderBatchBundle<T>> = (0..size_x)
             .flat_map(|x| (0..size_y).map(move |y| (x, y)))
             .filter_map(move |(x, y)| {
                 let tile_pos = TilePos(x, y);
                 let chunk_pos = ChunkPos(x / chunk_size.0, y / chunk_size.1);
                 if let Some(mut tile_bundle) = f(tile_pos) {
                     let tile_parent = tile_bundle.get_tile_parent();
+                    let chunk_entity = ref_layer.get_chunk(chunk_pos).unwrap();
                     *tile_parent = TileParent {
-                        chunk: ref_layer.get_chunk(chunk_pos).unwrap(),
+                        chunk: chunk_entity,
                         layer_id,
                         map_id,
                     };
                     let tile_bundle_pos = tile_bundle.get_tile_pos_mut();
                     *tile_bundle_pos = tile_pos;
 
-                    Some(tile_bundle)
+                    Some(LayerBuilderBatchBundle::new(tile_bundle, chunk_entity))
                 } else {
                     None
                 }
@@ -364,8 +365,7 @@ where
                         *tile_bundle_pos = tile_pos;
                         commands
                             .entity(tile_entity.unwrap())
-                            .insert(Parent(chunk_entity))
-                            .insert_bundle(tile_bundle);
+                            .insert_bundle(LayerBuilderBatchBundle::new(tile_bundle, chunk_entity));
 
                         return tile_entity;
                     }
@@ -502,5 +502,28 @@ where
         };
 
         Transform::from_xyz(chunk_pos.x, chunk_pos.y, 0.0)
+    }
+}
+
+/// Adds a parent to each Tile bundle.
+#[derive(Bundle)]
+struct LayerBuilderBatchBundle<T>
+where
+    T: TileBundleTrait,
+{
+    #[bundle]
+    bundle: T,
+    parent: Parent,
+}
+
+impl<T> LayerBuilderBatchBundle<T>
+where
+    T: TileBundleTrait,
+{
+    fn new(bundle: T, chunk: Entity) -> Self {
+        Self {
+            bundle,
+            parent: Parent(chunk),
+        }
     }
 }
